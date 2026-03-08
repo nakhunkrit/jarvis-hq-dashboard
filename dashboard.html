@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS — Agent Team HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070a12;
+    --surface: #0d1220;
+    --surface2: #111827;
+    --border: rgba(99,179,237,0.12);
+    --accent: #63b3ed;
+    --accent2: #f6ad55;
+    --accent3: #68d391;
+    --accent4: #fc8181;
+    --text: #e2e8f0;
+    --muted: #718096;
+    --glow: 0 0 20px rgba(99,179,237,0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Space Mono', 'Noto Sans Thai', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #63b3ed, #4299e1);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 0 30px rgba(99,179,237,0.4);
+  }
+  .logo-text h1 {
+    font-size: 20px;
+    letter-spacing: 4px;
+    color: var(--accent);
+  }
+  .logo-text p {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-top: 2px;
+  }
+  .header-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--accent3);
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent3);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* Boss Card */
+  .boss-section {
+    margin-bottom: 40px;
+  }
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .boss-card {
+    background: linear-gradient(135deg, rgba(99,179,237,0.08), rgba(66,153,225,0.04));
+    border: 1px solid rgba(99,179,237,0.3);
+    border-radius: 16px;
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--glow);
+  }
+  .boss-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+  .boss-avatar {
+    width: 72px; height: 72px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #2b6cb0, #63b3ed);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    flex-shrink: 0;
+    box-shadow: 0 0 24px rgba(99,179,237,0.4);
+  }
+  .boss-info h2 {
+    font-size: 22px;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+  .boss-info .role {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+  .boss-info .model-tag {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 4px 12px;
+    background: rgba(99,179,237,0.15);
+    border: 1px solid rgba(99,179,237,0.3);
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .boss-stats {
+    margin-left: auto;
+    display: flex;
+    gap: 32px;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-size: 28px; font-weight: 700; color: var(--accent); }
+  .stat-label { font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
+
+  /* Team Grid */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .agent-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+  .agent-card:hover {
+    border-color: var(--card-accent);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+  .agent-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--card-accent);
+    border-radius: 14px 0 0 14px;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .agent-avatar {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    background: var(--card-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .agent-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--card-accent);
+    letter-spacing: 1px;
+  }
+  .agent-role {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-top: 3px;
+  }
+  .agent-status {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px;
+    color: var(--accent3);
+  }
+  .agent-model {
+    font-size: 10px;
+    color: var(--muted);
+    padding: 5px 10px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+  }
+  .agent-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .tag {
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+  .tag.highlight {
+    background: rgba(var(--card-rgb), 0.1);
+    border-color: rgba(var(--card-rgb), 0.2);
+    color: var(--card-accent);
+  }
+
+  /* KHUNN Factory */
+  .factory-section {
+    margin-bottom: 40px;
+  }
+  .factory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .factory-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.2s;
+  }
+  .factory-card:hover {
+    background: var(--surface2);
+    border-color: rgba(246,173,85,0.3);
+  }
+  .dept-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: rgba(246,173,85,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .dept-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: 1px;
+  }
+  .dept-agent {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* Junior */
+  .junior-card {
+    background: linear-gradient(135deg, rgba(104,211,145,0.06), rgba(72,187,120,0.03));
+    border: 1px solid rgba(104,211,145,0.25);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .junior-avatar {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #276749, #68d391);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 0 20px rgba(104,211,145,0.25);
+    flex-shrink: 0;
+  }
+  .junior-info h3 { font-size: 17px; color: var(--accent3); }
+  .junior-info p { font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: 1px; }
+  .junior-badge {
+    margin-left: auto;
+    padding: 6px 14px;
+    background: rgba(104,211,145,0.1);
+    border: 1px solid rgba(104,211,145,0.2);
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--accent3);
+    letter-spacing: 1px;
+  }
+
+  /* Bottom bar */
+  footer {
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .agent-card, .boss-card, .junior-card, .factory-card {
+    animation: fadeUp 0.4s ease backwards;
+  }
+  .agent-card:nth-child(1) { animation-delay: 0.05s; }
+  .agent-card:nth-child(2) { animation-delay: 0.1s; }
+  .agent-card:nth-child(3) { animation-delay: 0.15s; }
+  .agent-card:nth-child(4) { animation-delay: 0.2s; }
+  .agent-card:nth-child(5) { animation-delay: 0.25s; }
+  .agent-card:nth-child(6) { animation-delay: 0.3s; }
+  .agent-card:nth-child(7) { animation-delay: 0.35s; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div class="logo-text">
+        <h1>JARVIS HQ</h1>
+        <p>AGENT TEAM DASHBOARD</p>
+      </div>
+    </div>
+    <div class="header-status">
+      <div class="dot"></div>
+      SYSTEMS ONLINE — 8 AGENTS READY
+    </div>
+  </header>
+
+  <!-- BOSS -->
+  <div class="boss-section">
+    <div class="section-label">// COMMANDER</div>
+    <div class="boss-card">
+      <div class="boss-avatar">👑</div>
+      <div class="boss-info">
+        <h2>JARVIS</h2>
+        <div class="role">BOSS / ORCHESTRATOR</div>
+        <span class="model-tag">claude-opus-4.6</span>
+      </div>
+      <div class="boss-stats">
+        <div class="stat">
+          <div class="stat-num">7</div>
+          <div class="stat-label">AGENTS</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">5</div>
+          <div class="stat-label">DEPTS</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">TASKS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM -->
+  <div class="section-label">// AGENT ROSTER</div>
+  <div class="team-grid">
+
+    <div class="agent-card" style="--card-accent:#63b3ed; --card-bg:rgba(99,179,237,0.08); --card-rgb:99,179,237;">
+      <div class="card-header">
+        <div class="agent-avatar">🗺️</div>
+        <div>
+          <div class="agent-name">เดวิด</div>
+          <div class="agent-role">RESEARCH & KNOWLEDGE</div>
+        </div>
+        <div class="agent-status"><div class="dot" style="background:var(--accent3)"></div>READY</div>
+      </div>
+      <div class="agent-model">gemini-3.1-pro-preview</div>
+      <div class="agent-tags">
+        <span class="tag highlight">จัดซื้อ</span>
+        <span class="tag">research</span>
+        <span class="tag">analysis</span>
+        <span class="tag">supplier</span>
+      </div>
+    </div>
+
+    <div class="agent-card" style="--card-accent:#f6ad55; --card-bg:rgba(246,173,85,0.08); --card-rgb:246,173,85;">
+      <div class="card-header">
+        <div class="agent-avatar">✍️</div>
+        <div>
+          <div class="agent-name">อีลิท</div>
+          <div class="agent-role">WRITING & DOCS</div>
+        </div>
+        <div class="agent-status"><div class="dot" style="background:var(--accent3)"></div>READY</div>
+      </div>
+      <div class="agent-model">gpt-5.4</div>
+      <div class="agent-tags">
+        <span class="tag highlight">HR</span>
+        <span class="tag">writing</span>
+        <span class="tag">docs</span>
+        <span class="tag">contracts</span>
+      </div>
+    </div>
+
+    <div class="agent-card" style="--card-accent:#b794f4; --card-bg:rgba(183,148,244,0.08); --card-rgb:183,148,244;">
+      <div class="card-header">
+        <div class="agent-avatar">💡</div>
+        <div>
+          <div class="agent-name">อีลอน</div>
+          <div class="agent-role">CREATIVE & STRATEGY</div>
+        </div>
+        <div class="agent-status"><div class="dot" style="background:var(--accent3)"></div>READY</div>
+      </div>
+      <div class="agent-model">claude-sonnet-4.6</div>
+      <div class="agent-tags">
+        <span class="tag highlight">strategy</span>
+        <span class="tag">creative</span>
+        <span class="tag">planning</span>
+      </div>
+    </div>
+
+    <div class="agent-card" style="--card-accent:#fc8181; --card-bg:rgba(252,129,129,0.08); --card-rgb:252,129,129;">
+      <div class="card-header">
+        <div class="agent-avatar">🎨</div>
+        <div>
+          <div class="agent-name">แจ๊ค</div>
+          <div class="agent-role">VISUAL & DESIGN</div>
+        </div>
+        <div class="agent-status"><div class="dot" style="background:var(--accent3)"></div>READY</div>
+      </div>
+      <div class="agent-model">gemini-2.5-flash</div>
+      <div class="agent-tags">
+        <span class="tag highlight">design</span>
+        <span class="tag">visual</span>
+        <span class="tag">image</span>
+        <span class="tag">content</span>
+      </div>
+    </div>
+
+    <div class="agent-card" style="--card-accent:#68d391; --card-bg:rgba(104,211,145,0.08); --card-rgb:104,211,145;">
+      <div class="card-header">
+        <div class="agent-avatar">🧑‍💻</div>
+        <div>
+          <div class="agent-name">ไอรอน</div>
+          <div class="agent-role">CODE & INFRA</div>
+        </div>
+        <div class="agent-status"><div class="dot" style="background:var(--accent3)"></div>READY</div>
+      </div>
+      <div class="agent-model">qwen3.5-pro (local)</div>
+      <div class="agent-tags">
+        <span class="tag highlight">QC</span>
+        <span class="tag">code</span>
+        <span class="tag">infra</span>
+        <span class="tag">local</span>
+      </div>
+    </div>
+
+    <div class="agent-card" style="--card-accent:#f687b3; --card-bg:rgba(246,135,179,0.08); --card-rgb:246,135,179;">
+      <div class="card-header">
+        <div class="agent-avatar">📱</div>
+        <div>
+          <div class="agent-name">โรม</div>
+          <div class="agent-role">SOCIAL & CONTENT</div>
+        </div>
+        <div class="agent-status"><div class="dot" style="background:var(--accent3)"></div>READY</div>
+      </div>
+      <div class="agent-model">gemini-2.5-flash</div>
+      <div class="agent-tags">
+        <span class="tag highlight">CS</span>
+        <span class="tag">social</span>
+        <span class="tag">content</span>
+        <span class="tag">LINE</span>
+      </div>
+    </div>
+
+    <div class="agent-card" style="--card-accent:#76e4f7; --card-bg:rgba(118,228,247,0.08); --card-rgb:118,228,247;">
+      <div class="card-header">
+        <div class="agent-avatar">📊</div>
+        <div>
+          <div class="agent-name">อีทาน</div>
+          <div class="agent-role">TRENDS & ANALYTICS</div>
+        </div>
+        <div class="agent-status"><div class="dot" style="background:var(--accent3)"></div>READY</div>
+      </div>
+      <div class="agent-model">qwen3.5:1.7b (local)</div>
+      <div class="agent-tags">
+        <span class="tag highlight">Logistics</span>
+        <span class="tag">analytics</span>
+        <span class="tag">trends</span>
+        <span class="tag">local</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JUNIOR -->
+  <div class="section-label">// KHUNN SALES AGENT</div>
+  <div class="junior-card">
+    <div class="junior-avatar">🦞</div>
+    <div class="junior-info">
+      <h3>Junior</h3>
+      <p>SALES + ADMIN — iMac ที่บ้าน</p>
+      <p style="margin-top:6px; color:#4a5568; font-size:10px;">100.106.239.32:18789</p>
+    </div>
+    <div class="junior-badge">SALES AGENT ONLINE</div>
+  </div>
+
+  <!-- KHUNN FACTORY -->
+  <div class="factory-section">
+    <div class="section-label">// KHUNN FACTORY — DEPT ASSIGNMENTS</div>
+    <div class="factory-grid">
+      <div class="factory-card">
+        <div class="dept-icon">🛒</div>
+        <div>
+          <div class="dept-name">จัดซื้อ</div>
+          <div class="dept-agent">→ เดวิด</div>
+        </div>
+      </div>
+      <div class="factory-card">
+        <div class="dept-icon">✅</div>
+        <div>
+          <div class="dept-name">QC</div>
+          <div class="dept-agent">→ ไอรอน</div>
+        </div>
+      </div>
+      <div class="factory-card">
+        <div class="dept-icon">👥</div>
+        <div>
+          <div class="dept-name">HR</div>
+          <div class="dept-agent">→ อีลิท</div>
+        </div>
+      </div>
+      <div class="factory-card">
+        <div class="dept-icon">🚚</div>
+        <div>
+          <div class="dept-name">Logistics</div>
+          <div class="dept-agent">→ อีทาน</div>
+        </div>
+      </div>
+      <div class="factory-card">
+        <div class="dept-icon">💬</div>
+        <div>
+          <div class="dept-name">CS</div>
+          <div class="dept-agent">→ โรม</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>JARVIS HQ v1.0 — KHUNN Shoes Ecosystem</span>
+    <span id="clock"></span>
+  </footer>
+
+</div>
+
+<script>
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toLocaleString('th-TH', { timeZone: 'Asia/Bangkok', hour12: false });
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>
+</body>
+</html>
