@@ -19,7 +19,7 @@
 
 ## Junior (KHUNN Sales)
 - **Junior** → iMac ที่บ้าน — Sales + Admin หลัก
-- Gateway: http://100.106.239.32:18789
+- Gateway: http://100.100.109.107:18789
 
 ## KHUNN Factory Assignments
 | แผนก | Agent |
